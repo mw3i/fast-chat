@@ -7,12 +7,15 @@ const md = new MarkdownIt();
 export function renderMarkdown(content) {
   if (!content) return '';
   try {
-    const html = md.render(content);
+    let html = md.render(content);
+    // Wrap tables in a scrollable container div
+    html = html.replace(/<table>/g, '<div class="table-wrapper"><table>');
+    html = html.replace(/<\/table>/g, '</table></div>');
     // Sanitize HTML to remove any potentially dangerous scripts/tags
     return DOMPurify.sanitize(html, {
       // Allow common markdown HTML tags but strip scripts and event handlers
-      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'img'],
-      ALLOWED_ATTR: ['href', 'src', 'alt', 'title'],
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'div'],
+      ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class'],
     });
   } catch (e) {
     console.error('Error rendering markdown:', e);

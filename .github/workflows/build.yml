@@ -79,4 +79,39 @@ jobs:
             desktop/target/release/bundle/**/*.dmg
             desktop/target/release/bundle/**/*.msi
             desktop/target/release/bundle/**/*.AppImage
+          retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v0.1.0-${{ github.run_number }}
+          name: Release v0.1.0-${{ github.run_number }}
+          body: |
+            ## Build ${{ github.run_number }}
+            
+            Automated build from commit ${{ github.sha }}
+            
+            ### Downloads
+            - **macOS**: Fast Chat.dmg
+            - **Windows**: Fast Chat.msi
+            - **Linux**: Fast Chat.AppImage
+          files: |
+            artifacts/**/*
+          draft: false
+          prerelease: true
 

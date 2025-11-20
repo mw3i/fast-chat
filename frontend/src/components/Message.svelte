@@ -269,6 +269,71 @@
     word-wrap: break-word;
   }
   
+  .message-content.markdown :global(.table-wrapper) {
+    @apply my-4;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .message-content.markdown :global(.table-wrapper)::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .message-content.markdown :global(.table-wrapper)::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+  
+  .message-content.markdown :global(.table-wrapper)::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+  
+  .message-content.markdown :global(.table-wrapper table) {
+    @apply border-collapse;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    display: table;
+    width: max-content;
+    min-width: 100%;
+    table-layout: auto;
+  }
+  
+  .message-content.markdown :global(.table-wrapper table thead) {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .message-content.markdown :global(.table-wrapper table th) {
+    @apply px-1;
+    @apply py-0.5;
+    @apply text-left;
+    @apply font-semibold;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.95);
+    white-space: nowrap;
+  }
+  
+  .message-content.markdown :global(.table-wrapper table td) {
+    @apply px-1;
+    @apply py-0.5;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    white-space: nowrap;
+  }
+  
+  .message-content.markdown :global(.table-wrapper table tbody tr:last-child td) {
+    border-bottom: none;
+  }
+  
+  .message-content.markdown :global(.table-wrapper table th:not(:last-child)),
+  .message-content.markdown :global(.table-wrapper table td:not(:last-child)) {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
   .message-wrapper {
     @apply flex flex-col;
     @apply max-w-[85%];

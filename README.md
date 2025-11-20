@@ -19,7 +19,7 @@ Sometimes I just need to talk to an LLM really quickly, and Raycast is paywalled
 
 **No Warranty:** This software is provided "AS IS" without warranty of any kind. Use at your own risk.
 
-1. Download (coming soon): [Mac]() | [Linux]() | [Windows]()
+1. Download: [Mac](https://github.com/mw3i/fast-chat/releases/latest) | [Linux](https://github.com/mw3i/fast-chat/releases/latest) | [Windows](https://github.com/mw3i/fast-chat/releases/latest)
 2. Run app
 3. `ctrl+space` or whatever you set the keyboard shortcut to
 4. Chat with LLM
