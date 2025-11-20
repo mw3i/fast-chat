@@ -1,0 +1,70 @@
+# Repo Specific
+.env
+.local/
+.in-progress/
+
+## Frontend
+frontend/dist/
+frontend/node_modules/
+
+## Tauri
+desktop/gen/
+desktop/target/
+
+### Icons
+desktop/icons/*
+!desktop/icons/icon.png
+
+# ---
+# Generic
+
+# Node.js
+.npm/
+.pnpm-store/
+.yarn/
+.pnp.*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Vite
+.vite/
+vite.config.*.timestamp-*
+
+# Svelte
+.svelte-kit/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Rust
+**/*.rs.bk
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.iml
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
