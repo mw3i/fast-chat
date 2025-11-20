@@ -107,12 +107,10 @@ fn main() {
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(move |app_handle, event| {
-            match event {
-                RunEvent::Reopen { .. } => {
-                    // Handle dock icon click - toggle window visibility
-                    toggle_window(&app_handle, &is_listening_for_run);
-                }
-                _ => {}
+            #[cfg(target_os = "macos")]
+            if let RunEvent::Reopen { .. } = event {
+                // Handle dock icon click - toggle window visibility
+                toggle_window(&app_handle, &is_listening_for_run);
             }
         });
 }
