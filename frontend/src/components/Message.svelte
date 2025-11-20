@@ -1,22 +1,67 @@
 <script>
   import { renderMarkdown } from '../lib/utils.js';
+  import { Copy, Check } from 'lucide-svelte';
   
   export let message;
+  
+  let copied = false;
+  
+  async function copyMessage() {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      copied = true;
+      setTimeout(() => {
+        copied = false;
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  }
 </script>
 
-<div class="message" class:user-message={message.role === 'user'} class:ai-message={message.role === 'assistant'}>
-  {#if message.role === 'assistant'}
-    {#if message.content === 'loading-dots'}
-      <div class="message-content loading-dots">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
+<div class="message-wrapper" class:user-message={message.role === 'user'} class:ai-message={message.role === 'assistant'}>
+  <div class="message" class:user-message={message.role === 'user'} class:ai-message={message.role === 'assistant'}>
+    {#if message.role === 'assistant'}
+      {#if message.content === 'loading-dots'}
+        <div class="message-content loading-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      {:else}
+        <div class="message-content markdown">{@html renderMarkdown(message.content)}</div>
+      {/if}
     {:else}
-      <div class="message-content markdown">{@html renderMarkdown(message.content)}</div>
+      <div class="message-content">{message.content}</div>
     {/if}
-  {:else}
-    <div class="message-content">{message.content}</div>
+    
+    {#if message.content !== 'loading-dots' && message.role === 'assistant'}
+      <button 
+        class="copy-message-button"
+        on:click={copyMessage}
+        title={copied ? 'Copied!' : 'Copy message'}
+      >
+        {#if copied}
+          <Check size={14} />
+        {:else}
+          <Copy size={14} />
+        {/if}
+      </button>
+    {/if}
+  </div>
+  
+  {#if message.content !== 'loading-dots' && message.role === 'user'}
+    <button 
+      class="copy-message-button copy-message-button-external"
+      on:click={copyMessage}
+      title={copied ? 'Copied!' : 'Copy message'}
+    >
+      {#if copied}
+        <Check size={14} />
+      {:else}
+        <Copy size={14} />
+      {/if}
+    </button>
   {/if}
 </div>
 
@@ -24,7 +69,6 @@
   .message {
     @apply rounded-lg;
     @apply p-4;
-    @apply max-w-[85%];
     animation: fadeIn 0.3s ease;
   }
 
@@ -39,15 +83,13 @@
     }
   }
 
-  .user-message {
-    @apply self-end;
+  .message.user-message {
     background: rgba(59, 130, 246, 0.3);
     border: 1px solid rgba(59, 130, 246, 0.5);
     color: rgba(255, 255, 255, 0.95);
   }
 
-  .ai-message {
-    @apply self-start;
+  .message.ai-message {
     background: transparent;
     border: none;
     color: rgba(255, 255, 255, 0.9);
@@ -225,6 +267,52 @@
   .message-content.markdown :global(em) {
     @apply italic;
     word-wrap: break-word;
+  }
+  
+  .message-wrapper {
+    @apply flex flex-col;
+    @apply max-w-[85%];
+  }
+  
+  .message-wrapper.user-message {
+    @apply self-end items-end;
+  }
+  
+  .message-wrapper.ai-message {
+    @apply self-start items-start;
+  }
+  
+  .copy-message-button {
+    @apply flex items-center justify-center;
+    @apply mt-2;
+    @apply p-1.5;
+    @apply rounded;
+    @apply transition-colors;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    opacity: 0.7;
+    min-width: 28px;
+    min-height: 28px;
+    box-sizing: border-box;
+  }
+  
+  .copy-message-button-external {
+    @apply self-end;
+  }
+  
+  .message-wrapper:hover .copy-message-button {
+    opacity: 1;
+  }
+  
+  .copy-message-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  .copy-message-button:active {
+    transform: scale(0.95);
   }
 </style>
 
