@@ -14,6 +14,8 @@ desktop/target/
 ### Icons
 desktop/icons/*
 !desktop/icons/icon.png
+!desktop/icons/icon.icns
+!desktop/icons/icon.ico
 
 # ---
 # Generic
