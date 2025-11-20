@@ -19,7 +19,7 @@ Sometimes I just need to talk to an LLM really quickly, and Raycast is paywalled
 
 **No Warranty:** This software is provided "AS IS" without warranty of any kind. Use at your own risk.
 
-1. Downloads (coming soon): [Mac]() | [Linux]() | [Windows]()
+1. Download (coming soon): [Mac]() | [Linux]() | [Windows]()
 2. Run app
 3. `ctrl+space` or whatever you set the keyboard shortcut to
 4. Chat with LLM
@@ -70,17 +70,6 @@ Open app -> Settings -> Set custom key binding
 
 > Eventually we'll probably want to bring in a Python FastAPI server for complex agent workflows
 
-# UNTESTED!
-
-This hasn't been tested yet for:
-
-- [ ] model provider = google api 
-- [ ] model provider = lm studio version
-- [ ] windows
-- [ ] linux
-
-So your mileage may vary.
-
 # Contribute
 
 Don't screw it up.
@@ -94,3 +83,14 @@ Don't screw it up.
 **API Usage & Costs:** This software makes API calls to third-party services (OpenAI, Google, etc.) that may charge based on usage. You are responsible for monitoring and managing your API usage and costs. The authors are not responsible for any charges incurred from using this software.
 
 **No Warranty:** This software is provided "AS IS" without warranty of any kind. Use at your own risk.
+
+## UNTESTED!
+
+This hasn't been tested yet for:
+
+- [ ] model provider = google api 
+- [ ] model provider = lm studio version
+- [ ] windows
+- [ ] linux
+
+So your mileage may vary.
