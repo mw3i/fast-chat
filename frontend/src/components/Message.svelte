@@ -22,7 +22,7 @@
 <div class="message-wrapper" class:user-message={message.role === 'user'} class:ai-message={message.role === 'assistant'}>
   <div class="message" class:user-message={message.role === 'user'} class:ai-message={message.role === 'assistant'}>
     {#if message.role === 'assistant'}
-      {#if message.content === 'loading-dots'}
+      {#if message.content === 'loading-dots' || (message.complete === false && (!message.content || message.content.trim().length === 0))}
         <div class="message-content loading-dots">
           <span></span>
           <span></span>
@@ -30,6 +30,13 @@
         </div>
       {:else}
         <div class="message-content markdown">{@html renderMarkdown(message.content)}</div>
+        {#if message.complete === false}
+          <div class="message-content loading-dots" style="margin-top: 0.5rem;">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        {/if}
       {/if}
     {:else}
       <div class="message-content">{message.content}</div>

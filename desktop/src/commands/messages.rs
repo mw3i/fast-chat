@@ -26,6 +26,7 @@ pub async fn send_message(app: AppHandle, conversation_id: String, user_message:
             role: "user".to_string(),
             content: user_message,
             timestamp: user_timestamp,
+            complete: true,
         };
         conversation.messages.push(user_msg);
     }
@@ -37,6 +38,7 @@ pub async fn send_message(app: AppHandle, conversation_id: String, user_message:
             role: m.role.clone(),
             content: m.content.clone(),
             timestamp: String::new(), // Not needed for LLM call
+            complete: true, // Not needed for LLM call
         })
         .collect();
     
@@ -49,6 +51,7 @@ pub async fn send_message(app: AppHandle, conversation_id: String, user_message:
         role: "assistant".to_string(),
         content: llm_response,
         timestamp: assistant_timestamp,
+        complete: true,
     };
     conversation.messages.push(assistant_msg);
     
@@ -83,6 +86,7 @@ pub async fn send_message_stream(
             role: "user".to_string(),
             content: user_message,
             timestamp: user_timestamp,
+            complete: true,
         };
         conversation.messages.push(user_msg);
     }
@@ -94,26 +98,57 @@ pub async fn send_message_stream(
             role: m.role.clone(),
             content: m.content.clone(),
             timestamp: String::new(),
+            complete: true, // Not needed for LLM call
         })
         .collect();
     
-    // Stream LLM response
+    // Create incomplete assistant message at the start
+    let assistant_timestamp = get_iso_timestamp();
+    let assistant_msg = Message {
+        role: "assistant".to_string(),
+        content: String::new(),
+        timestamp: assistant_timestamp,
+        complete: false,
+    };
+    conversation.messages.push(assistant_msg.clone());
+    
+    // Save user message and incomplete assistant message
+    conversation.updated_at = get_iso_timestamp();
+    save_conversation_storage(&app, &conversation)?;
+    
+    // Stream LLM response with periodic save callback
     let mut full_response = String::new();
     let event_name = format!("stream-chunk-{}", conversation_id);
+    let conversation_id_clone = conversation_id.clone();
     
-    stream_llm(&app, &event_name, &llm_messages, &mut full_response).await?;
+    // Create callback for periodic saves
+    let app_clone = app.clone();
+    let save_callback = Box::new(move |partial_content: &str| -> Result<(), String> {
+        // Load conversation, update assistant message, save
+        let mut conv = load_conversation_storage(&app_clone, &conversation_id_clone)?;
+        if let Some(last_msg) = conv.messages.last_mut() {
+            if last_msg.role == "assistant" && !last_msg.complete {
+                last_msg.content = partial_content.to_string();
+                conv.updated_at = get_iso_timestamp();
+                save_conversation_storage(&app_clone, &conv)?;
+            }
+        }
+        Ok(())
+    });
+    
+    stream_llm(&app, &event_name, &llm_messages, &mut full_response, Some(save_callback)).await?;
     
     // Send completion event
     app.emit(&event_name, "DONE").map_err(|e| format!("Failed to emit completion: {}", e))?;
     
-    // Add assistant message
-    let assistant_timestamp = get_iso_timestamp();
-    let assistant_msg = Message {
-        role: "assistant".to_string(),
-        content: full_response,
-        timestamp: assistant_timestamp,
-    };
-    conversation.messages.push(assistant_msg);
+    // Mark assistant message as complete
+    let mut conversation = load_conversation_storage(&app, &conversation_id)?;
+    if let Some(last_msg) = conversation.messages.last_mut() {
+        if last_msg.role == "assistant" {
+            last_msg.content = full_response;
+            last_msg.complete = true;
+        }
+    }
     
     // Update updated_at timestamp
     conversation.updated_at = get_iso_timestamp();

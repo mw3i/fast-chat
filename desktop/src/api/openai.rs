@@ -110,6 +110,7 @@ pub async fn stream_openai(
     web_search_enabled: &bool,
     messages: &[Message],
     full_response: &mut String,
+    periodic_save: Option<Box<dyn Fn(&str) -> Result<(), String> + Send + Sync>>,
 ) -> Result<(), String> {
     if api_key.is_empty() {
         return Err("OpenAI API key is required".to_string());
@@ -166,8 +167,11 @@ pub async fn stream_openai(
     
     // Stream the response (SSE format)
     use futures_util::StreamExt;
+    use std::time::{Duration, Instant};
     let mut stream = response.bytes_stream();
     let mut buffer = String::new();
+    let mut last_save_time = Instant::now();
+    const SAVE_INTERVAL: Duration = Duration::from_secs(2); // Save every 2 seconds
     
     while let Some(item) = stream.next().await {
         let chunk = item.map_err(|e| format!("Stream error: {}", e))?;
@@ -191,6 +195,16 @@ pub async fn stream_openai(
                                 if let Some(content) = delta.get("content").and_then(|c| c.as_str()) {
                                     full_response.push_str(content);
                                     app.emit(event_name, content).map_err(|e| format!("Failed to emit chunk: {}", e))?;
+                                    
+                                    // Periodic save (every 2 seconds)
+                                    if let Some(ref save_callback) = periodic_save {
+                                        if last_save_time.elapsed() >= SAVE_INTERVAL {
+                                            if let Err(e) = save_callback(full_response) {
+                                                eprintln!("Warning: Failed to save partial message: {}", e);
+                                            }
+                                            last_save_time = Instant::now();
+                                        }
+                                    }
                                 }
                             }
                         }

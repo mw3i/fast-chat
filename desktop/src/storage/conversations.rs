@@ -230,6 +230,7 @@ pub fn create_conversation(app: &AppHandle, user_message: &str) -> Result<String
         role: "user".to_string(),
         content: user_message.to_string(),
         timestamp: iso_timestamp.clone(),
+        complete: true,
     };
     
     // Create the conversation

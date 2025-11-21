@@ -16,7 +16,9 @@
   let currentConversationId = null;
   let currentMessages = [];
   let loadingConversation = false;
-  let sendingMessage = false;
+  let activeSessions = new Set(); // Track which conversation IDs are currently streaming
+  let eventListeners = new Map(); // Track event listeners per conversation for cleanup
+  let messageCache = new Map(); // Cache messages for all conversations (conversationId -> messages[])
   let showSettings = false;
   let settingsPanelClosing = false;
   let settings = {
@@ -94,7 +96,10 @@
   });
 
   async function handleKeydown(event) {
-    if (event.key === 'Enter' && !event.shiftKey && query.trim() && !sendingMessage) {
+    // Allow sending if no conversation is active, or if current conversation is not streaming
+    const canSend = !currentConversationId || !activeSessions.has(currentConversationId);
+    
+    if (event.key === 'Enter' && !event.shiftKey && query.trim() && canSend) {
       event.preventDefault();
       
       const userMessage = query.trim();
@@ -119,11 +124,13 @@
 
   // Send a message to the current conversation (with streaming)
   async function sendMessage(userMessage) {
-    if (!currentConversationId || sendingMessage) {
+    if (!currentConversationId || activeSessions.has(currentConversationId)) {
       return;
     }
     
-    sendingMessage = true;
+    // Mark this conversation as active
+    activeSessions.add(currentConversationId);
+    activeSessions = new Set(activeSessions); // Trigger reactivity by creating new Set
     
     try {
       const lastMessage = currentMessages[currentMessages.length - 1];
@@ -136,9 +143,16 @@
         const userMsg = {
           role: 'user',
           content: userMessage,
-          timestamp: userTimestamp
+          timestamp: userTimestamp,
+          complete: true
         };
         currentMessages = [...currentMessages, userMsg];
+        
+        // Update cache
+        const cachedMessages = messageCache.get(currentConversationId) || [];
+        messageCache.set(currentConversationId, [...cachedMessages, userMsg]);
+        messageCache = new Map(messageCache); // Trigger reactivity
+        
         if (chatViewRef) {
           chatViewRef.resetScrollState();
           chatViewRef.forceScrollToBottom();
@@ -148,10 +162,15 @@
       const assistantMsg = {
         role: 'assistant',
         content: 'loading-dots',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        complete: false
       };
       currentMessages = [...currentMessages, assistantMsg];
       const assistantIndex = currentMessages.length - 1;
+      
+      // Update cache with placeholder (use current messages as base)
+      messageCache.set(currentConversationId, [...currentMessages]);
+      messageCache = new Map(messageCache); // Trigger reactivity
       if (chatViewRef) {
         chatViewRef.resetScrollState();
         chatViewRef.forceScrollToBottom();
@@ -161,11 +180,30 @@
       let streamContent = '';
       let firstChunkReceived = false;
       
-      const unlisten = await listen(eventName, (event) => {
+      const unlisten = await listen(eventName, async (event) => {
         const chunk = event.payload;
+        const eventConvId = eventName.replace('stream-chunk-', '');
+        
         if (chunk === 'DONE') {
           unlisten();
-          sendingMessage = false;
+          // Remove from active sessions and clean up listener
+          activeSessions.delete(eventConvId);
+          activeSessions = new Set(activeSessions); // Trigger reactivity by creating new Set
+          eventListeners.delete(eventConvId);
+          // Clear cache for this conversation (will reload from disk on next view)
+          messageCache.delete(eventConvId);
+          messageCache = new Map(messageCache); // Trigger reactivity
+          
+          // If we're currently viewing this conversation, reload it from disk to get final complete state
+          if (currentConversationId === eventConvId) {
+            // Reload the conversation to get the complete message from disk
+            const data = await invoke('load_conversation', { conversationId: eventConvId });
+            currentMessages = data.messages || [];
+            currentMessages = currentMessages; // Trigger reactivity
+          }
+          
+          // Reload conversation history to update UI
+          loadConversationHistory();
         } else if (typeof chunk === 'string') {
           streamContent += chunk;
           
@@ -174,16 +212,44 @@
             firstChunkReceived = true;
           }
           
-          // Only update message content if we've received actual content
+          // Update cache for this conversation (regardless of which conversation is viewed)
           if (firstChunkReceived) {
-            currentMessages[assistantIndex] = {
-              ...currentMessages[assistantIndex],
-              content: streamContent
-            };
-            currentMessages = currentMessages;
+            const cachedMessages = messageCache.get(eventConvId) || [];
+            // Find the last assistant message and update it, or create new one
+            let updatedMessages = [...cachedMessages];
+            const lastIndex = updatedMessages.length - 1;
+            if (lastIndex >= 0 && updatedMessages[lastIndex].role === 'assistant') {
+              updatedMessages[lastIndex] = {
+                ...updatedMessages[lastIndex],
+                content: streamContent,
+                complete: false // Mark as incomplete while streaming
+              };
+            } else {
+              // No assistant message yet, add one
+              updatedMessages.push({
+                role: 'assistant',
+                content: streamContent,
+                timestamp: new Date().toISOString(),
+                complete: false
+              });
+            }
+            messageCache.set(eventConvId, updatedMessages);
+            messageCache = new Map(messageCache); // Trigger reactivity
+            
+            // Also update currentMessages if this is the conversation being viewed
+            if (currentConversationId === eventConvId) {
+              currentMessages[assistantIndex] = {
+                ...currentMessages[assistantIndex],
+                content: streamContent
+              };
+              currentMessages = currentMessages;
+            }
           }
         }
       });
+      
+      // Store the listener for cleanup
+      eventListeners.set(currentConversationId, unlisten);
       
       await invoke('send_message_stream', {
         conversationId: currentConversationId,
@@ -199,7 +265,11 @@
         timestamp: new Date().toISOString()
       };
       currentMessages = [...currentMessages, errorMsg];
-      sendingMessage = false;
+      
+      // Remove from active sessions on error
+      activeSessions.delete(currentConversationId);
+      activeSessions = new Set(activeSessions); // Trigger reactivity by creating new Set
+      eventListeners.delete(currentConversationId);
     }
   }
 
@@ -294,8 +364,45 @@
     try {
       const data = await invoke('load_conversation', { conversationId });
       
+      // Note: We don't clean up listeners here because we want to keep receiving
+      // updates even if we switch away and come back. The listeners are scoped
+      // per conversation and will clean themselves up when streams complete.
+      
       currentConversationId = data.id;
-      currentMessages = data.messages || [];
+      
+      // Merge disk messages with cache (cache takes precedence for real-time updates)
+      const diskMessages = data.messages || [];
+      const cachedMessages = messageCache.get(conversationId);
+      
+      if (cachedMessages && cachedMessages.length > 0) {
+        // Merge: use disk messages up to the last complete message,
+        // then append cached updates
+        const lastCompleteIndex = diskMessages.findLastIndex(m => m.complete !== false);
+        const baseMessages = lastCompleteIndex >= 0 
+          ? diskMessages.slice(0, lastCompleteIndex + 1)
+          : diskMessages;
+        
+        // Append cached messages that are newer or incomplete
+        const mergedMessages = [...baseMessages];
+        for (const cachedMsg of cachedMessages) {
+          const existingIndex = mergedMessages.findIndex(m => 
+            m.role === cachedMsg.role && 
+            m.timestamp === cachedMsg.timestamp
+          );
+          if (existingIndex >= 0) {
+            // Update existing message with cached content
+            mergedMessages[existingIndex] = cachedMsg;
+          } else {
+            // New message from cache
+            mergedMessages.push(cachedMsg);
+          }
+        }
+        currentMessages = mergedMessages;
+      } else {
+        // No cache, use disk messages
+        currentMessages = diskMessages;
+      }
+      
       isChatMode = true;
       query = '';
       
@@ -394,6 +501,7 @@
         bind:inputRef
         {conversations}
         {loading}
+        activeSessions={activeSessions}
         onKeydown={handleKeydown}
         onSettingsClick={handleSettingsClick}
         onConversationClick={handleConversationClick}

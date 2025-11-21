@@ -4,6 +4,7 @@
   
   export let conversations = [];
   export let loading = false;
+  export let activeSessions = new Set();
   export let onConversationClick;
   export let onDeleteConversation;
   export let onDeleteAll;
@@ -31,6 +32,7 @@
       {#each conversations as conv (conv.id)}
         <ConversationItem
           conversation={conv}
+          isStreaming={activeSessions.has(conv.id)}
           onDelete={(e) => onDeleteConversation(conv.id, e)}
           onClick={() => onConversationClick(conv.id)}
         />

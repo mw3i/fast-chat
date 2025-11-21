@@ -49,6 +49,7 @@ pub async fn stream_llm(
     event_name: &str,
     messages: &[Message],
     full_response: &mut String,
+    periodic_save: Option<Box<dyn Fn(&str) -> Result<(), String> + Send + Sync>>,
 ) -> Result<(), String> {
     // Load settings
     let settings = load_settings(app)?;
@@ -74,6 +75,7 @@ pub async fn stream_llm(
                 &provider_params.ollama.model,
                 messages,
                 full_response,
+                periodic_save,
             ).await
         }
         "openai" => {
@@ -84,6 +86,7 @@ pub async fn stream_llm(
                 &provider_params.openai.web_search_enabled,
                 messages,
                 full_response,
+                periodic_save,
             ).await
         }
         _ => {

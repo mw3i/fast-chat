@@ -6,6 +6,7 @@
   export let inputRef;
   export let conversations = [];
   export let loading = false;
+  export let activeSessions = new Set();
   export let onKeydown;
   export let onSettingsClick;
   export let onConversationClick;
@@ -35,6 +36,7 @@
 <ConversationList
   {conversations}
   {loading}
+  {activeSessions}
   {onConversationClick}
   {onDeleteConversation}
   {onDeleteAll}

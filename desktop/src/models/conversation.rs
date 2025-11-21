@@ -5,6 +5,12 @@ pub struct Message {
     pub role: String, // "system", "user", or "assistant"
     pub content: String,
     pub timestamp: String, // ISO 8601 timestamp
+    #[serde(default = "default_complete")]
+    pub complete: bool, // Whether this message is complete (false for streaming/incomplete messages)
+}
+
+fn default_complete() -> bool {
+    true
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
