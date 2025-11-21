@@ -1,5 +1,6 @@
 <script>
   import { X } from 'lucide-svelte';
+  import { invoke } from '@tauri-apps/api/core';
   import ShortcutPicker from '../ShortcutPicker.svelte';
   
   export let show = false;
@@ -10,6 +11,82 @@
   export let onClose;
   export let onSettingChange;
   export let onSave;
+  export let onRedoSetup;
+
+  let ollamaModels = [];
+  let loadingModels = false;
+  let modelError = '';
+  let hasFetchedModels = false;
+  let lastFetchedUrl = '';
+
+  async function fetchOllamaModels() {
+    if (settings.provider !== 'ollama') {
+      ollamaModels = [];
+      hasFetchedModels = false;
+      return;
+    }
+
+    const url = settings['provider-params']?.ollama?.url || 'http://localhost:11434';
+    
+    // Don't fetch if we already fetched for this URL
+    if (hasFetchedModels && lastFetchedUrl === url) {
+      return;
+    }
+
+    loadingModels = true;
+    modelError = '';
+
+    try {
+      const models = await invoke('list_ollama_models', { url });
+      ollamaModels = models || [];
+      hasFetchedModels = true;
+      lastFetchedUrl = url;
+      if (ollamaModels.length === 0) {
+        modelError = 'No models found. Make sure Ollama is running and has models installed.';
+      } else {
+        // Auto-select the first model if no model is currently selected or if URL changed
+        const currentModel = settings['provider-params']?.ollama?.model;
+        if (!currentModel || !ollamaModels.includes(currentModel)) {
+          settings['provider-params'].ollama.model = ollamaModels[0];
+          settings = settings;
+          await onSave();
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching Ollama models:', error);
+      modelError = `Failed to fetch models: ${error}`;
+      ollamaModels = [];
+      hasFetchedModels = false;
+    } finally {
+      loadingModels = false;
+    }
+  }
+
+  // Fetch models when settings panel opens and Ollama is selected
+  $: if (show && settings.provider === 'ollama' && !loading && !hasFetchedModels) {
+    fetchOllamaModels();
+  }
+
+  // Fetch models when provider changes to ollama
+  let previousProvider = '';
+  $: {
+    if (settings.provider !== previousProvider) {
+      previousProvider = settings.provider;
+      if (settings.provider === 'ollama' && show) {
+        hasFetchedModels = false; // Reset to allow fetching
+        fetchOllamaModels();
+      } else {
+        ollamaModels = [];
+        modelError = '';
+        hasFetchedModels = false;
+      }
+    }
+  }
+
+  // Reset fetch flag when panel closes
+  $: if (!show) {
+    hasFetchedModels = false;
+  }
 </script>
 
 {#if show}
@@ -95,7 +172,11 @@
                 settings['provider-params'].ollama.url = e.target.value;
                 settings = settings;
               }}
-              on:blur={onSave}
+              on:blur={async () => {
+                await onSave();
+                // Fetch models after URL changes
+                fetchOllamaModels();
+              }}
               placeholder="http://localhost:11434"
               class="setting-input"
             />
@@ -104,17 +185,60 @@
         <div class="setting-item">
           <label class="setting-label">
             <span class="setting-label-text">Model Name</span>
-            <input
-              type="text"
-              value={settings['provider-params'].ollama.model}
-              on:input={(e) => {
-                settings['provider-params'].ollama.model = e.target.value;
-                settings = settings;
-              }}
-              on:blur={onSave}
-              placeholder="gemma2:2b"
-              class="setting-input"
-            />
+            {#if loadingModels}
+              <div class="relative">
+                <select disabled class="setting-select opacity-50">
+                  <option>Select a model</option>
+                </select>
+                <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div class="w-4 h-4 border-2 border-white/30 border-t-white/80 rounded-full animate-spin"></div>
+                </div>
+              </div>
+            {:else if ollamaModels.length > 0}
+              <select
+                value={settings['provider-params'].ollama.model || ''}
+                on:change={(e) => {
+                  settings['provider-params'].ollama.model = e.target.value;
+                  settings = settings;
+                  onSave();
+                }}
+                class="setting-select"
+              >
+                <option value="" disabled>Select a model</option>
+                {#each ollamaModels as model}
+                  <option value={model}>{model}</option>
+                {/each}
+              </select>
+            {:else}
+              <div class="model-select-container">
+                <select
+                  value={settings['provider-params'].ollama.model}
+                  on:change={(e) => {
+                    settings['provider-params'].ollama.model = e.target.value;
+                    settings = settings;
+                    onSave();
+                  }}
+                  class="setting-select"
+                >
+                  <option value={settings['provider-params'].ollama.model || ''}>
+                    {settings['provider-params'].ollama.model || 'No models available'}
+                  </option>
+                </select>
+                <button
+                  type="button"
+                  on:click={fetchOllamaModels}
+                  class="refresh-models-button"
+                  title="Refresh models"
+                >
+                  ↻
+                </button>
+              </div>
+            {/if}
+            {#if modelError}
+              <div class="model-error">
+                {modelError}
+              </div>
+            {/if}
           </label>
         </div>
       {:else if settings.provider === 'openai'}
@@ -202,6 +326,24 @@
           </label>
         </div>
       {/if}
+        </div>
+      </div>
+      
+      <!-- Reset Section -->
+      <div class="settings-section">
+        <h3 class="settings-section-heading">Reset</h3>
+        <div class="setting-item">
+          <button
+            on:click={() => {
+              if (onRedoSetup) {
+                onRedoSetup();
+                onClose();
+              }
+            }}
+            class="redo-setup-button"
+          >
+            Redo the setup?
+          </button>
         </div>
       </div>
       {/if}
@@ -363,6 +505,42 @@
     color: rgba(255, 255, 255, 0.4);
   }
 
+  .model-select-container {
+    @apply flex;
+    @apply gap-2;
+    @apply items-center;
+  }
+
+  .model-select-container .setting-select {
+    flex: 1;
+  }
+
+  .refresh-models-button {
+    @apply px-3 py-2;
+    @apply rounded-lg;
+    @apply bg-transparent;
+    @apply border;
+    @apply transition-colors;
+    @apply cursor-pointer;
+    color: rgba(255, 255, 255, 0.7);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  .refresh-models-button:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .model-error {
+    @apply text-sm;
+    @apply mt-2;
+    color: #ef4444;
+  }
+
   /* Shortcut Error Message */
   .shortcut-error {
     @apply text-sm;
@@ -389,6 +567,24 @@
     to {
       opacity: 0;
     }
+  }
+
+  .redo-setup-button {
+    @apply px-4 py-2;
+    @apply rounded-lg;
+    @apply bg-transparent;
+    @apply border;
+    @apply transition-colors;
+    @apply cursor-pointer;
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 0.9rem;
+  }
+
+  .redo-setup-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
   }
 </style>
 

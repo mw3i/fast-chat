@@ -121,11 +121,17 @@ pub fn save_settings(app: &AppHandle, settings_map: HashMap<String, serde_json::
         .map(|s| s.to_string())
         .unwrap_or_else(|| default_shortcut());
     
+    let setup_completed = settings_map
+        .get("setup-completed")
+        .and_then(|v| v.as_bool())
+        .unwrap_or_else(|| crate::models::default_setup_completed());
+    
     let settings = Settings {
         provider,
         provider_params,
         conversation_history,
         keyboard_shortcut,
+        setup_completed,
     };
     
     // Ensure the directory exists

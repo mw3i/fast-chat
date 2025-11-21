@@ -6,6 +6,7 @@
   import LauncherView from './components/LauncherView.svelte';
   import SettingsPanel from './components/SettingsPanel.svelte';
   import DeleteModal from './components/DeleteModal.svelte';
+  import WelcomeScreen from './components/WelcomeScreen.svelte';
 
   let query = '';
   let inputRef;
@@ -27,12 +28,14 @@
       'lmstudio': { 'url': 'http://localhost:1234', 'model': 'local-model' },
       'custom': { 'url': '' }
     },
-    'keyboard-shortcut': 'Ctrl+Space'
+    'keyboard-shortcut': 'Ctrl+Space',
+    'setup-completed': false
   };
   let loadingSettings = false;
   let showDeleteAllModal = false;
   let shortcutError = '';
   let chatViewRef;
+  let showWelcomeScreen = false;
 
   // Load conversation history from backend
   async function loadConversationHistory() {
@@ -71,6 +74,7 @@
     if (inputRef) {
       inputRef.focus();
     }
+    await loadSettings();
     loadConversationHistory();
 
     window.addEventListener('keydown', handleGlobalKeydown);
@@ -163,17 +167,21 @@
           unlisten();
           sendingMessage = false;
         } else if (typeof chunk === 'string') {
-          if (!firstChunkReceived) {
+          streamContent += chunk;
+          
+          // Only hide loading dots when we have actual content (non-empty after trimming)
+          if (!firstChunkReceived && streamContent.trim().length > 0) {
             firstChunkReceived = true;
-            streamContent = chunk;
-          } else {
-            streamContent += chunk;
           }
-          currentMessages[assistantIndex] = {
-            ...currentMessages[assistantIndex],
-            content: streamContent
-          };
-          currentMessages = currentMessages;
+          
+          // Only update message content if we've received actual content
+          if (firstChunkReceived) {
+            currentMessages[assistantIndex] = {
+              ...currentMessages[assistantIndex],
+              content: streamContent
+            };
+            currentMessages = currentMessages;
+          }
         }
       });
       
@@ -213,14 +221,21 @@
       };
       
       const keyboardShortcut = String(data['keyboard-shortcut'] ?? 'Ctrl+Space');
+      const setupCompleted = Boolean(data['setup-completed'] ?? false);
       
       settings = {
         'provider': provider,
         'provider-params': providerParams,
-        'keyboard-shortcut': keyboardShortcut
+        'keyboard-shortcut': keyboardShortcut,
+        'setup-completed': setupCompleted
       };
+      
+      // Show welcome screen only if setup hasn't been completed
+      showWelcomeScreen = !setupCompleted;
     } catch (error) {
       console.error('Error loading settings:', error);
+      // On error, show welcome screen
+      showWelcomeScreen = true;
     } finally {
       if (showLoading) {
         loadingSettings = false;
@@ -343,9 +358,25 @@
   function cancelDeleteAll() {
     showDeleteAllModal = false;
   }
+
+  // Dismiss welcome screen
+  async function dismissWelcomeScreen() {
+    showWelcomeScreen = false;
+    // Mark setup as completed
+    settings['setup-completed'] = true;
+    await saveSettings();
+  }
+  
+  // Redo setup
+  function redoSetup() {
+    showWelcomeScreen = true;
+  }
 </script>
 
-<div class="launcher-window" class:chat-mode={isChatMode}>
+{#if showWelcomeScreen}
+  <WelcomeScreen onContinue={dismissWelcomeScreen} />
+{:else}
+  <div class="launcher-window" class:chat-mode={isChatMode}>
     <div class="top-block">
       {#if isChatMode}
       <ChatView
@@ -382,15 +413,17 @@
       onClose={handleSettingsClick}
       onSettingChange={handleSettingChange}
       onSave={saveSettings}
+      onRedoSetup={redoSetup}
     />
                   {/if}
             </div>
             
-<DeleteModal
-  show={showDeleteAllModal}
-  onConfirm={confirmDeleteAll}
-  onCancel={cancelDeleteAll}
-/>
+  <DeleteModal
+    show={showDeleteAllModal}
+    onConfirm={confirmDeleteAll}
+    onCancel={cancelDeleteAll}
+  />
+{/if}
 
 <style>
   .launcher-window {

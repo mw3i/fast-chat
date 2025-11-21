@@ -118,9 +118,10 @@ jobs:
             
             ### macOS Installation Notes
             This app is not code signed. If you see "file is damaged" after downloading:
-            1. Open Terminal
-            2. Run: `xattr -cr ~/Downloads/Fast\ Chat.dmg`
-            3. Or right-click the DMG → Open → Click "Open" in the security dialog
+              1. Drag app into `Applications` folder (or wherever you want)
+              2. Open Terminal
+              3. Run: `xattr -cr "/Applications/Fast Chat.app"` (or wherever you stored it)
+              4. Try running
           files: |
             artifacts/**/*
           draft: false

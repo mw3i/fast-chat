@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use tauri::AppHandle;
+use serde::{Deserialize, Serialize};
 use crate::storage::settings::{load_settings as load_settings_storage, save_settings as save_settings_storage};
 use crate::window::shortcuts::update_shortcut;
 
@@ -40,5 +41,45 @@ pub fn save_settings(app: AppHandle, settings_map: HashMap<String, serde_json::V
     save_settings_storage(&app, settings_map)?;
     
     Ok(())
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct OllamaModel {
+    name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct OllamaTagsResponse {
+    models: Vec<OllamaModel>,
+}
+
+#[tauri::command]
+pub async fn list_ollama_models(url: String) -> Result<Vec<String>, String> {
+    let client = reqwest::Client::new();
+    let api_url = format!("{}/api/tags", url.trim_end_matches('/'));
+    
+    let response = client
+        .get(&api_url)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to connect to Ollama at {}: {}", api_url, e))?;
+    
+    let status = response.status();
+    if !status.is_success() {
+        let error_text = response.text().await.unwrap_or_default();
+        return Err(format!("Ollama API error ({}): {}", status, error_text));
+    }
+    
+    let tags_response: OllamaTagsResponse = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse Ollama response: {}", e))?;
+    
+    let model_names: Vec<String> = tags_response.models
+        .into_iter()
+        .map(|m| m.name)
+        .collect();
+    
+    Ok(model_names)
 }
 

@@ -23,6 +23,7 @@ use commands::{
     create_conversation,
     send_message,
     send_message_stream,
+    list_ollama_models,
 };
 
 fn main() {
@@ -55,7 +56,8 @@ fn main() {
             send_message,
             send_message_stream,
             update_shortcut,
-            set_shortcut_listening_mode
+            set_shortcut_listening_mode,
+            list_ollama_models
         ])
         .setup(|app| {
             let window = app.get_webview_window("main").unwrap();

@@ -107,6 +107,12 @@ pub struct Settings {
     pub conversation_history: bool,
     #[serde(rename = "keyboard-shortcut", default = "default_shortcut")]
     pub keyboard_shortcut: String,
+    #[serde(rename = "setup-completed", default = "default_setup_completed")]
+    pub setup_completed: bool,
+}
+
+pub fn default_setup_completed() -> bool {
+    false
 }
 
 pub fn default_shortcut() -> String {
@@ -120,6 +126,7 @@ impl Default for Settings {
             provider_params: ProviderParams::default(),
             conversation_history: true,
             keyboard_shortcut: default_shortcut(),
+            setup_completed: default_setup_completed(),
         }
     }
 }

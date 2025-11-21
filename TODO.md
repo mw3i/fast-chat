@@ -3,7 +3,7 @@ title: Fast Chat Launcher TODO List
 source: human
 ---
 
-- [ ] windows / linux builds
+- [ ] wide table x-scroll issue
 - [ ] top bar icon (with show/hide effect)
 - [ ] multi windows (all anchored by openclose shortcut; with consistent z ordering)
 - [ ] cooler blur modern background
@@ -15,7 +15,8 @@ source: human
 # Test
 
 - [ ] test on multiple devices to see if loads
-- [ ] windows/linux tests
+- [ ] test on windows
+- [~] test on linux
 - [ ] support for more llm providers (or at least test/check current provider options)
 
 # LongTerm
