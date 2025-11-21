@@ -71,6 +71,11 @@ jobs:
           projectPath: desktop
           args: ${{ matrix.args }}
 
+      - name: Remove extended attributes from DMG (macOS only)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          find desktop/target/release/bundle -name "*.dmg" -exec xattr -cr {} \;
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -110,6 +115,12 @@ jobs:
             - **macOS**: Fast Chat.dmg
             - **Windows**: Fast Chat.msi
             - **Linux**: Fast Chat.AppImage
+            
+            ### macOS Installation Notes
+            This app is not code signed. If you see "file is damaged" after downloading:
+            1. Open Terminal
+            2. Run: `xattr -cr ~/Downloads/Fast\ Chat.dmg`
+            3. Or right-click the DMG → Open → Click "Open" in the security dialog
           files: |
             artifacts/**/*
           draft: false
