@@ -166,7 +166,6 @@
         complete: false
       };
       currentMessages = [...currentMessages, assistantMsg];
-      const assistantIndex = currentMessages.length - 1;
       
       // Update cache with placeholder (use current messages as base)
       messageCache.set(currentConversationId, [...currentMessages]);
@@ -238,11 +237,17 @@
             
             // Also update currentMessages if this is the conversation being viewed
             if (currentConversationId === eventConvId) {
-          currentMessages[assistantIndex] = {
-            ...currentMessages[assistantIndex],
-            content: streamContent
-          };
-          currentMessages = currentMessages;
+              // Find the last incomplete assistant message (the one we're streaming)
+              const assistantMsgIndex = currentMessages.findLastIndex(m => 
+                m.role === 'assistant' && m.complete === false
+              );
+              if (assistantMsgIndex >= 0) {
+                currentMessages[assistantMsgIndex] = {
+                  ...currentMessages[assistantMsgIndex],
+                  content: streamContent
+                };
+                currentMessages = currentMessages;
+              }
             }
           }
         }
@@ -370,11 +375,13 @@
       
       currentConversationId = data.id;
       
-      // Merge disk messages with cache (cache takes precedence for real-time updates)
+      // If conversation is actively streaming, merge cache with disk
+      // Otherwise, use disk as source of truth and clear cache
       const diskMessages = data.messages || [];
+      const isStreaming = activeSessions.has(conversationId);
       const cachedMessages = messageCache.get(conversationId);
       
-      if (cachedMessages && cachedMessages.length > 0) {
+      if (isStreaming && cachedMessages && cachedMessages.length > 0) {
         // Merge: use disk messages up to the last complete message,
         // then append cached updates
         const lastCompleteIndex = diskMessages.findLastIndex(m => m.complete !== false);
@@ -399,8 +406,12 @@
         }
         currentMessages = mergedMessages;
       } else {
-        // No cache, use disk messages
+        // Not streaming, use disk as source of truth and clear cache
         currentMessages = diskMessages;
+        if (cachedMessages) {
+          messageCache.delete(conversationId);
+          messageCache = new Map(messageCache); // Trigger reactivity
+        }
       }
       
       isChatMode = true;
