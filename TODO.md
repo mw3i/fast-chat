@@ -17,6 +17,7 @@ source: human
 - [ ] test on multiple devices to see if loads
 - [ ] test on windows
 - [~] test on linux
+    - missing libs on appimage
 - [ ] support for more llm providers (or at least test/check current provider options)
 
 # LongTerm

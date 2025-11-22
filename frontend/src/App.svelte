@@ -557,13 +557,8 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    flex-shrink: 0;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .launcher-window.chat-mode .top-block {
     flex: 1;
     min-height: 0;
+    overflow: hidden;
   }
 </style>

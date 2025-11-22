@@ -14,35 +14,45 @@
   export let onDeleteAll;
 </script>
 
-<div class="input-container">
-  <input
-    bind:this={inputRef}
-    bind:value={query}
-    on:keydown={onKeydown}
-    type="text"
-    placeholder="Type to search..."
-    class="launcher-input"
-    autofocus
+<div class="launcher-container">
+  <div class="input-container">
+    <input
+      bind:this={inputRef}
+      bind:value={query}
+      on:keydown={onKeydown}
+      type="text"
+      placeholder="Type to search..."
+      class="launcher-input"
+      autofocus
+    />
+    <button
+      on:click={onSettingsClick}
+      class="settings-button"
+      title="Settings"
+    >
+      <Settings size={20} />
+    </button>
+  </div>
+
+  <ConversationList
+    {conversations}
+    {loading}
+    {activeSessions}
+    {onConversationClick}
+    {onDeleteConversation}
+    {onDeleteAll}
   />
-  <button
-    on:click={onSettingsClick}
-    class="settings-button"
-    title="Settings"
-  >
-    <Settings size={20} />
-  </button>
 </div>
 
-<ConversationList
-  {conversations}
-  {loading}
-  {activeSessions}
-  {onConversationClick}
-  {onDeleteConversation}
-  {onDeleteAll}
-/>
-
 <style>
+  .launcher-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .input-container {
     @apply flex items-center gap-3;
     position: relative;

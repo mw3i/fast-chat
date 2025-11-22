@@ -126,24 +126,14 @@ pub fn save_settings(app: &AppHandle, settings_map: HashMap<String, serde_json::
         .and_then(|v| v.as_bool())
         .unwrap_or_else(|| crate::models::default_setup_completed());
     
-    let window_x = settings_map
-        .get("window-x")
-        .and_then(|v| v.as_i64())
-        .map(|x| x as i32);
-    
-    let window_y = settings_map
-        .get("window-y")
-        .and_then(|v| v.as_i64())
-        .map(|y| y as i32);
-    
     let settings = Settings {
         provider,
         provider_params,
         conversation_history,
         keyboard_shortcut,
         setup_completed,
-        window_x,
-        window_y,
+        window_x: None,
+        window_y: None,
     };
     
     // Ensure the directory exists
@@ -161,24 +151,5 @@ pub fn save_settings(app: &AppHandle, settings_map: HashMap<String, serde_json::
         .map_err(|e| format!("Failed to write config.json: {}", e))?;
     
     Ok(())
-}
-
-// Save window position to settings
-pub fn save_window_position(app: &AppHandle, x: i32, y: i32) -> Result<(), String> {
-    let mut settings = load_settings(app)?;
-    settings.insert("window-x".to_string(), serde_json::Value::Number(x.into()));
-    settings.insert("window-y".to_string(), serde_json::Value::Number(y.into()));
-    save_settings(app, settings)
-}
-
-// Load window position from settings
-pub fn load_window_position(app: &AppHandle) -> Option<(i32, i32)> {
-    if let Ok(settings) = load_settings(app) {
-        let x = settings.get("window-x")?.as_i64()? as i32;
-        let y = settings.get("window-y")?.as_i64()? as i32;
-        Some((x, y))
-    } else {
-        None
-    }
 }
 
