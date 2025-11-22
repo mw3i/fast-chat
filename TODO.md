@@ -3,13 +3,12 @@ title: Fast Chat Launcher TODO List
 source: human
 ---
 
-- [ ] stop button
+- [ ] cooler blur modern background
+- [ ] dark / light mode
 - [ ] wide table x-scroll issue
 - [ ] top bar icon (with show/hide effect)
 - [ ] multi windows (all anchored by openclose shortcut; with consistent z ordering)
-- [ ] cooler blur modern background
 - [ ] get web search tool use for openai / gemini
-- [ ] dark / light mode
 
 # Test
 

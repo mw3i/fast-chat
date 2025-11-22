@@ -581,7 +581,7 @@
     @apply w-full;
     height: 100vh;
     @apply px-6 pb-6;
-    background: rgba(20, 20, 20, 0.9);
+    background: transparent;
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     display: flex;
@@ -603,5 +603,6 @@
     flex: 1;
     min-height: 0;
     overflow: hidden;
+    padding-top: 40px;
   }
 </style>

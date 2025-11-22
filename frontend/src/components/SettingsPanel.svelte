@@ -360,7 +360,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(20, 20, 20, 0.9);
+    background: transparent;
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     border-radius: 1rem;

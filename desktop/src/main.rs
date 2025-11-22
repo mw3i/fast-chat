@@ -9,6 +9,7 @@ use std::sync::{Arc, Mutex, atomic::AtomicBool};
 use std::collections::HashMap;
 use tauri::{Manager, RunEvent, WindowEvent};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutEvent, ShortcutState};
+use tauri_plugin_decorum::WebviewWindowExt;
 use futures::future::AbortHandle;
 
 use window::shortcuts::{toggle_window, parse_shortcut, set_shortcut_listening_mode, update_shortcut};
@@ -43,6 +44,7 @@ fn main() {
         .manage(is_listening)
         .manage(abort_handles)
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_decorum::init())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(move |app: &tauri::AppHandle, _shortcut: &Shortcut, event: ShortcutEvent| {
@@ -71,6 +73,20 @@ fn main() {
         ])
         .setup(|app| {
             let window = app.get_webview_window("main").unwrap();
+            
+            // Create overlay titlebar with decorum plugin
+            window.create_overlay_titlebar().unwrap();
+            
+            #[cfg(target_os = "macos")]
+            {
+                use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
+                apply_vibrancy(&window, NSVisualEffectMaterial::Sidebar, None, None)
+                    .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
+                
+                // Set traffic lights inset
+                window.set_traffic_lights_inset(12.0, 16.0).unwrap();
+            }
+            
             let app_handle = app.handle();
             
             // Load settings and register keyboard shortcut
