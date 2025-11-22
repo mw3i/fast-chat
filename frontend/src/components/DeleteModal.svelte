@@ -34,7 +34,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--bg-modal-overlay);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     display: flex;
@@ -45,10 +45,10 @@
   }
 
   .modal-content {
-    background: rgba(20, 20, 20, 0.95);
+    background: var(--bg-modal);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-primary);
     border-radius: 1rem;
     padding: 2rem;
     max-width: 400px;
@@ -82,13 +82,13 @@
   .modal-title {
     @apply text-xl;
     @apply font-semibold;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
     margin: 0 0 1rem 0;
   }
 
   .modal-message {
     @apply text-base;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
     margin: 0 0 1.5rem 0;
     line-height: 1.5;
   }
@@ -107,21 +107,21 @@
   }
 
   .modal-button-cancel {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.9);
+    background: var(--bg-button);
+    color: var(--text-primary);
   }
 
   .modal-button-cancel:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--bg-button-hover);
   }
 
   .modal-button-confirm {
-    background: #ef4444;
+    background: var(--error-color);
     color: white;
   }
 
   .modal-button-confirm:hover {
-    background: #dc2626;
+    background: var(--error-hover);
   }
 </style>
 

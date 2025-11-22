@@ -31,7 +31,8 @@
       'custom': { 'url': '' }
     },
     'keyboard-shortcut': 'Ctrl+Space',
-    'setup-completed': false
+    'setup-completed': false,
+    'theme': 'dark'
   };
   let loadingSettings = false;
   let showDeleteAllModal = false;
@@ -274,9 +275,9 @@
               if (assistantMsgIndex >= 0) {
                 currentMessages[assistantMsgIndex] = {
                   ...currentMessages[assistantMsgIndex],
-                  content: streamContent
-                };
-                currentMessages = currentMessages;
+            content: streamContent
+          };
+          currentMessages = currentMessages;
               }
             }
           }
@@ -327,13 +328,18 @@
       
       const keyboardShortcut = String(data['keyboard-shortcut'] ?? 'Ctrl+Space');
       const setupCompleted = Boolean(data['setup-completed'] ?? false);
+      const theme = String(data['theme'] ?? 'dark');
       
       settings = {
         'provider': provider,
         'provider-params': providerParams,
         'keyboard-shortcut': keyboardShortcut,
-        'setup-completed': setupCompleted
+        'setup-completed': setupCompleted,
+        'theme': theme
       };
+      
+      // Apply theme class to root element
+      applyTheme(theme);
       
       // Show welcome screen only if setup hasn't been completed
       showWelcomeScreen = !setupCompleted;
@@ -345,6 +351,16 @@
       if (showLoading) {
         loadingSettings = false;
       }
+    }
+  }
+
+  // Apply theme class to root element
+  function applyTheme(theme) {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.add('light');
+    } else {
+      root.classList.remove('light');
     }
   }
 
@@ -382,6 +398,9 @@
 
   function handleSettingChange(key, value) {
     settings = { ...settings, [key]: value };
+    if (key === 'theme') {
+      applyTheme(value);
+    }
     saveSettings();
   }
 
@@ -551,7 +570,7 @@
         isStreaming={currentConversationId && activeSessions.has(currentConversationId)}
         onStop={stopStreaming}
       />
-      {:else}
+                  {:else}
       <LauncherView
         bind:query
         bind:inputRef
@@ -564,10 +583,10 @@
         onDeleteConversation={handleDeleteConversation}
         onDeleteAll={handleDeleteAllClick}
       />
-      {/if}
+        {/if}
     </div>
-    {/if}
-</div>
+                  {/if}
+            </div>
             
 <DeleteModal
   show={showDeleteAllModal}
@@ -581,12 +600,12 @@
     @apply w-full;
     height: 100vh;
     @apply px-6 pb-6;
-    background: transparent;
+    background: var(--bg-primary);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     display: flex;
     flex-direction: column;
-    transition: height 0.3s ease, max-height 0.3s ease;
+    transition: height 0.3s ease, max-height 0.3s ease, background 0.3s ease;
     position: relative;
     overflow: hidden;
     margin: 0;

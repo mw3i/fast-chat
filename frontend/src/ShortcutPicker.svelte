@@ -176,26 +176,26 @@
     @apply cursor-pointer;
     @apply font-mono;
     @apply text-sm;
-    color: rgba(255, 255, 255, 0.9);
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border-color: var(--border-secondary);
+    background: var(--bg-input);
     min-width: 150px;
   }
   
   .shortcut-picker:focus,
   .shortcut-picker.listening {
     border-color: rgba(59, 130, 246, 0.5);
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-input-focus);
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
   }
   
   .shortcut-picker:hover:not(.listening) {
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--border-secondary);
+    background: var(--bg-input-focus);
   }
   
   .shortcut-value {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
   }
   
   .shortcut-placeholder {

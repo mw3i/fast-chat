@@ -29,7 +29,7 @@
   <!-- Back Arrow - Upper Left (only on second screen) -->
   {#if currentPage === 1}
     <button 
-      class="absolute top-12 left-8 text-white hover:opacity-70 transition-opacity cursor-pointer"
+      class="welcome-back-button"
       on:click={handleBack}
       data-tauri-drag-region="false"
       aria-label="Back"
@@ -43,10 +43,10 @@
   <!-- Page Content -->
   <div class="flex items-center justify-center h-full p-8" data-tauri-drag-region>
     {#if currentPage === 0}
-      <div class="w-full max-w-2xl text-center text-white">
+      <div class="w-full max-w-2xl text-center welcome-text">
         <h1 class="text-4xl font-semibold mb-8">Welcome to the app</h1>
         <button 
-          class="px-6 py-3 rounded-lg bg-white/10 border border-white/20 text-white font-medium hover:bg-white/20 hover:border-white/30 transition-all"
+          class="welcome-button"
           on:click={handleGetStarted}
           data-tauri-drag-region="false"
           aria-label="Get started"
@@ -55,15 +55,15 @@
         </button>
       </div>
     {:else if currentPage === 1}
-      <div class="w-full max-w-2xl text-white">
+      <div class="w-full max-w-2xl welcome-text">
         <h1 class="text-4xl font-semibold mb-8 text-center">Local LLM Setup</h1>
-        <div class="text-lg leading-relaxed text-white/90 space-y-6">
+        <div class="text-lg leading-relaxed welcome-text-secondary space-y-6">
           <p>
             To set up a local model, the easiest approach is going to be installing Ollama. 
-            Go to <a href="https://ollama.com" on:click={handleLinkClick} data-tauri-drag-region="false" class="text-blue-400 underline hover:text-blue-300 transition-colors cursor-pointer">ollama.com</a> and download it, install it, and run it.
+            Go to <a href="https://ollama.com" on:click={handleLinkClick} data-tauri-drag-region="false" class="welcome-link">ollama.com</a> and download it, install it, and run it.
           </p>
           <p>
-            Once you've loaded up Ollama, download an LLM. <code class="bg-white/10 px-2 py-1 rounded font-mono text-sm text-yellow-400">gemma3:4b</code> is a good one to start with.
+            Once you've loaded up Ollama, download an LLM. <code class="welcome-code">gemma3:4b</code> is a good one to start with.
           </p>
         </div>
       </div>
@@ -73,7 +73,7 @@
   <!-- Finish Button - Bottom Right (only on second screen) -->
   {#if currentPage === 1}
     <button 
-      class="fixed bottom-8 right-8 px-6 py-3 rounded-lg bg-white/10 border border-white/20 text-white font-medium hover:bg-white/20 hover:border-white/30 transition-all z-[1001]"
+      class="welcome-button welcome-finish-button"
       on:click={handleFinish}
       data-tauri-drag-region="false"
       aria-label="Finish setup"
@@ -87,10 +87,78 @@
   .welcome-overlay {
     position: fixed;
     inset: 0;
-    background: transparent;
+    background: var(--bg-primary);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     z-index: 1000;
+    transition: background 0.3s ease;
+  }
+
+  .welcome-text {
+    color: var(--text-primary);
+  }
+
+  .welcome-text-secondary {
+    color: var(--text-secondary);
+  }
+
+  .welcome-back-button {
+    position: absolute;
+    top: 3rem;
+    left: 2rem;
+    color: var(--text-primary);
+    transition: opacity 0.2s;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+
+  .welcome-back-button:hover {
+    opacity: 0.7;
+  }
+
+  .welcome-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    background: var(--bg-button);
+    border: 1px solid var(--border-secondary);
+    color: var(--text-primary);
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .welcome-button:hover {
+    background: var(--bg-button-hover);
+    border-color: var(--border-secondary);
+  }
+
+  .welcome-finish-button {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1001;
+  }
+
+  .welcome-code {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.875rem;
+    background: var(--bg-input);
+    color: var(--text-primary);
+  }
+
+  .welcome-link {
+    color: var(--link-color);
+    text-decoration: underline;
+    transition: opacity 0.2s;
+    cursor: pointer;
+  }
+
+  .welcome-link:hover {
+    opacity: 0.8;
   }
 
 </style>

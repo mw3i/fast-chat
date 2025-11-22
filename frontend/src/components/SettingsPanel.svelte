@@ -106,6 +106,32 @@
       {#if loading}
         <div class="settings-loading">Loading settings...</div>
       {:else}
+        <!-- Theme Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-heading">THEME</h3>
+          
+          <div class="setting-item">
+            <label class="setting-label">
+              <span class="setting-label-text">Appearance</span>
+              <div class="theme-toggle-container">
+                <span class="theme-label">Dark</span>
+                <button
+                  type="button"
+                  class="theme-toggle"
+                  class:light={settings.theme === 'light'}
+                  on:click={() => onSettingChange('theme', settings.theme === 'dark' ? 'light' : 'dark')}
+                  role="switch"
+                  aria-checked={settings.theme === 'light'}
+                  aria-label="Toggle theme"
+                >
+                  <span class="theme-toggle-slider"></span>
+                </button>
+                <span class="theme-label">Light</span>
+              </div>
+            </label>
+          </div>
+        </div>
+        
         <!-- Keyboard Shortcut Section -->
         <div class="settings-section">
           <h3 class="settings-section-heading">KEYBOARD SHORTCUT</h3>
@@ -356,8 +382,6 @@
     width: 100%;
     height: 100vh;
     background: transparent;
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
     display: flex;
     flex-direction: column;
     animation: fadeIn 0.15s ease;
@@ -392,13 +416,13 @@
     @apply flex items-center justify-between;
     @apply p-6;
     @apply border-b;
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--border-primary);
   }
 
   .settings-title {
     @apply text-2xl;
     @apply font-semibold;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
     margin: 0;
   }
 
@@ -409,13 +433,13 @@
     @apply transition-colors;
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-quaternary);
     cursor: pointer;
   }
 
   .settings-close-button:hover {
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    background: var(--bg-hover);
   }
 
   .settings-content {
@@ -429,7 +453,7 @@
   .settings-loading {
     @apply text-center;
     @apply py-8;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-tertiary);
   }
 
   .setting-item {
@@ -446,7 +470,7 @@
   .setting-label-text {
     @apply text-sm;
     @apply font-medium;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
   }
 
   .setting-select,
@@ -457,15 +481,15 @@
     @apply border;
     @apply outline-none;
     @apply transition-colors;
-    color: rgba(255, 255, 255, 0.9);
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border-color: var(--border-secondary);
+    background: var(--bg-input);
   }
 
   .setting-select:focus,
   .setting-input:focus {
     border-color: rgba(59, 130, 246, 0.5);
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-input-focus);
   }
 
   .setting-select {
@@ -473,10 +497,14 @@
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.6)' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     padding-right: 2.5rem;
+  }
+  
+  :global(.light) .setting-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
   }
   
   .settings-section {
@@ -488,7 +516,7 @@
   .settings-section-heading {
     @apply text-4xl;
     @apply font-bold;
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--text-primary);
     margin-bottom: 1rem;
   }
   
@@ -497,7 +525,7 @@
   }
 
   .setting-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-tertiary);
   }
 
   .model-select-container {
@@ -517,17 +545,17 @@
     @apply border;
     @apply transition-colors;
     @apply cursor-pointer;
-    color: rgba(255, 255, 255, 0.7);
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border-color: var(--border-secondary);
+    background: var(--bg-button);
     font-size: 1.2rem;
     line-height: 1;
   }
 
   .refresh-models-button:hover {
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+    color: var(--text-primary);
+    background: var(--bg-button-hover);
+    border-color: var(--border-secondary);
   }
 
   .model-error {
@@ -571,15 +599,69 @@
     @apply border;
     @apply transition-colors;
     @apply cursor-pointer;
-    color: rgba(255, 255, 255, 0.9);
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border-color: var(--border-secondary);
+    background: var(--bg-button);
     font-size: 0.9rem;
   }
 
   .redo-setup-button:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: var(--bg-button-hover);
+    border-color: var(--border-secondary);
+  }
+
+  .theme-toggle-container {
+    @apply flex items-center gap-3;
+  }
+
+  .theme-label {
+    @apply text-sm;
+    color: var(--text-secondary);
+    min-width: 40px;
+    text-align: center;
+  }
+
+  .theme-toggle {
+    position: relative;
+    width: 48px;
+    height: 24px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-secondary);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    outline: none;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--border-secondary);
+  }
+
+  .theme-toggle:focus {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+
+  .theme-toggle.light {
+    background: rgba(59, 130, 246, 0.6);
+    border-color: rgba(59, 130, 246, 0.8);
+  }
+
+  .theme-toggle-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: var(--text-primary);
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .theme-toggle.light .theme-toggle-slider {
+    transform: translateX(24px);
+    background: white;
   }
 </style>
 

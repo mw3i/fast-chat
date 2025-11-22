@@ -91,16 +91,16 @@
   }
 
   .message.user-message {
-    background: rgba(128, 128, 128, 0.3);
+    background: var(--bg-message-user);
     border: none;
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--text-primary);
     @apply p-3;
   }
 
   .message.ai-message {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
   }
 
   .message-content {
@@ -118,7 +118,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.6);
+    background: var(--text-quaternary);
     animation: loading-dot 1.4s infinite ease-in-out;
   }
   
@@ -158,7 +158,7 @@
   }
   
   .message-content.markdown :global(code) {
-    @apply bg-gray-800;
+    background: var(--code-bg);
     @apply px-1.5 py-0.5;
     @apply rounded;
     @apply text-sm;
@@ -166,7 +166,7 @@
   }
   
   .message-content.markdown :global(pre) {
-    @apply bg-gray-800;
+    background: var(--code-bg);
     @apply p-4;
     @apply rounded-lg;
     @apply overflow-x-auto;
@@ -182,9 +182,9 @@
     z-index: 10 !important;
     @apply p-2;
     @apply rounded;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.7);
+    background: var(--bg-button);
+    border: 1px solid var(--border-secondary);
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s;
     display: flex !important;
@@ -194,9 +194,9 @@
   }
   
   .copy-code-button:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.9);
-    border-color: rgba(255, 255, 255, 0.3);
+    background: var(--bg-button-hover);
+    color: var(--text-primary);
+    border-color: var(--border-secondary);
   }
   
   .copy-code-button:active {
@@ -257,14 +257,14 @@
   
   .message-content.markdown :global(blockquote) {
     @apply border-l-4;
-    border-color: rgba(255, 255, 255, 0.3);
+    border-color: var(--border-secondary);
     @apply pl-4;
     @apply italic;
     margin: 1rem 0;
   }
   
   .message-content.markdown :global(a) {
-    @apply text-blue-400;
+    color: var(--link-color);
     @apply underline;
   }
   
@@ -292,18 +292,18 @@
   }
   
   .message-content.markdown :global(.table-wrapper)::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-input);
     border-radius: 4px;
   }
   
   .message-content.markdown :global(.table-wrapper)::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--scrollbar-thumb);
     border-radius: 4px;
   }
   
   .message-content.markdown :global(.table-wrapper table) {
     @apply border-collapse;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-secondary);
     border-radius: 0.5rem;
     display: table;
     width: max-content;
@@ -312,7 +312,7 @@
   }
   
   .message-content.markdown :global(.table-wrapper table thead) {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-input);
   }
   
   .message-content.markdown :global(.table-wrapper table th) {
@@ -320,16 +320,16 @@
     @apply py-0.5;
     @apply text-left;
     @apply font-semibold;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.95);
+    border-bottom: 2px solid var(--border-secondary);
+    color: var(--text-primary);
     white-space: nowrap;
   }
   
   .message-content.markdown :global(.table-wrapper table td) {
     @apply px-1;
     @apply py-0.5;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid var(--border-primary);
+    color: var(--text-primary);
     white-space: nowrap;
   }
   
@@ -339,7 +339,7 @@
   
   .message-content.markdown :global(.table-wrapper table th:not(:last-child)),
   .message-content.markdown :global(.table-wrapper table td:not(:last-child)) {
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid var(--border-primary);
   }
   
   .message-wrapper {
@@ -363,7 +363,7 @@
     @apply transition-colors;
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-quaternary);
     cursor: pointer;
     opacity: 0.7;
     min-width: 28px;
@@ -380,8 +380,8 @@
   }
   
   .copy-message-button:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.9);
+    background: var(--bg-hover);
+    color: var(--text-primary);
   }
   
   .copy-message-button:active {

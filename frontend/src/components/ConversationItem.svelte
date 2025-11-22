@@ -51,13 +51,13 @@
     @apply cursor-pointer;
     @apply transition-colors;
     @apply flex items-center justify-between gap-3;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-input);
+    border: 1px solid var(--border-tertiary);
   }
 
   .history-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: var(--bg-hover);
+    border-color: var(--border-primary);
   }
 
   .history-item-content {
@@ -72,7 +72,7 @@
     @apply transition-colors;
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-tertiary);
     cursor: pointer;
     flex-shrink: 0;
     opacity: 0;
@@ -83,8 +83,8 @@
   }
 
   .delete-conversation-button:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.8);
+    background: var(--bg-hover);
+    color: var(--text-secondary);
   }
 
   .history-item-title {
@@ -92,7 +92,7 @@
     @apply font-medium;
     @apply mb-1;
     @apply flex items-center gap-2;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
   }
   
   .streaming-indicator {
@@ -134,7 +134,7 @@
   .history-item-meta {
     @apply text-xs;
     @apply flex items-center gap-2;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-tertiary);
   }
 </style>
 

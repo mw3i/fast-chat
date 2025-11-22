@@ -45,7 +45,7 @@
   .bottom-block {
     @apply mt-4;
     @apply border-t;
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--border-primary);
     padding-top: 1rem;
     display: flex;
     flex-direction: column;
@@ -62,7 +62,7 @@
   .history-title {
     @apply text-sm;
     @apply font-medium;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
@@ -74,14 +74,14 @@
     @apply transition-colors;
     background: transparent;
     border: none;
-    color: #ef4444;
+    color: var(--error-color);
     cursor: pointer;
     flex-shrink: 0;
   }
 
   .delete-all-button:hover {
     background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
+    color: var(--error-hover);
   }
 
   .history-list {
@@ -94,14 +94,14 @@
   .history-item.loading {
     @apply text-center;
     @apply py-4;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-tertiary);
     cursor: default;
   }
 
   .history-empty {
     @apply text-center;
     @apply py-4;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-tertiary);
     font-size: 0.875rem;
   }
 
@@ -115,12 +115,12 @@
   }
 
   .history-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--scrollbar-thumb);
     border-radius: 3px;
   }
 
   .history-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--scrollbar-thumb-hover);
   }
 </style>
 

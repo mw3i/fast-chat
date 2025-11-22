@@ -109,6 +109,8 @@ pub struct Settings {
     pub keyboard_shortcut: String,
     #[serde(rename = "setup-completed", default = "default_setup_completed")]
     pub setup_completed: bool,
+    #[serde(rename = "theme", default = "default_theme")]
+    pub theme: String,
     #[serde(rename = "window-x", skip_serializing_if = "Option::is_none")]
     pub window_x: Option<i32>,
     #[serde(rename = "window-y", skip_serializing_if = "Option::is_none")]
@@ -123,6 +125,10 @@ pub fn default_shortcut() -> String {
     "Ctrl+Space".to_string()
 }
 
+pub fn default_theme() -> String {
+    "dark".to_string()
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Self {
@@ -131,6 +137,7 @@ impl Default for Settings {
             conversation_history: true,
             keyboard_shortcut: default_shortcut(),
             setup_completed: default_setup_completed(),
+            theme: default_theme(),
             window_x: None,
             window_y: None,
         }

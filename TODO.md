@@ -3,7 +3,6 @@ title: Fast Chat Launcher TODO List
 source: human
 ---
 
-- [ ] cooler blur modern background
 - [ ] dark / light mode
 - [ ] wide table x-scroll issue
 - [ ] top bar icon (with show/hide effect)

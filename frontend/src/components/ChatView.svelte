@@ -206,7 +206,7 @@
     min-height: 0;
     padding-top: 1rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-primary);
   }
 
   .input-container {
@@ -223,13 +223,13 @@
     @apply border-none;
     @apply outline-none;
     @apply focus:ring-0;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
     font-size: 1.25rem;
     padding: 0.5rem 0;
   }
 
   .launcher-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-tertiary);
   }
 
   .back-button {
@@ -239,21 +239,21 @@
     @apply transition-colors;
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-quaternary);
     cursor: pointer;
     flex-shrink: 0;
   }
 
   .back-button:hover {
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    background: var(--bg-hover);
   }
 
   .stop-button {
     @apply flex items-center justify-center;
     @apply rounded-full;
     @apply transition-opacity;
-    background: white;
+    background: var(--text-primary);
     border: none;
     cursor: pointer;
     flex-shrink: 0;
@@ -276,16 +276,16 @@
   .user-message {
     @apply self-end;
     @apply p-3;
-    background: rgba(128, 128, 128, 0.3);
+    background: var(--bg-message-user);
     border: none;
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--text-primary);
   }
 
   .ai-message {
     @apply self-start;
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
   }
 
   .message-content {
@@ -304,12 +304,12 @@
   }
 
   .chat-messages::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--scrollbar-thumb);
     border-radius: 3px;
   }
 
   .chat-messages::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--scrollbar-thumb-hover);
   }
 </style>
 

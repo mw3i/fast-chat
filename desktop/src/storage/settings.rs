@@ -126,12 +126,19 @@ pub fn save_settings(app: &AppHandle, settings_map: HashMap<String, serde_json::
         .and_then(|v| v.as_bool())
         .unwrap_or_else(|| crate::models::default_setup_completed());
     
+    let theme = settings_map
+        .get("theme")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| crate::models::default_theme());
+    
     let settings = Settings {
         provider,
         provider_params,
         conversation_history,
         keyboard_shortcut,
         setup_completed,
+        theme,
         window_x: None,
         window_y: None,
     };
