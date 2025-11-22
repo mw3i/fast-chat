@@ -122,6 +122,19 @@
     }
   }
 
+  // Stop streaming for current conversation
+  async function stopStreaming() {
+    if (!currentConversationId || !activeSessions.has(currentConversationId)) {
+      return;
+    }
+    
+    try {
+      await invoke('stop_message_stream', { conversationId: currentConversationId });
+    } catch (error) {
+      console.error('Error stopping stream:', error);
+    }
+  }
+
   // Send a message to the current conversation (with streaming)
   async function sendMessage(userMessage) {
     if (!currentConversationId || activeSessions.has(currentConversationId)) {
@@ -196,6 +209,23 @@
           // If we're currently viewing this conversation, reload it from disk to get final complete state
           if (currentConversationId === eventConvId) {
             // Reload the conversation to get the complete message from disk
+            const data = await invoke('load_conversation', { conversationId: eventConvId });
+            currentMessages = data.messages || [];
+            currentMessages = currentMessages; // Trigger reactivity
+          }
+          
+          // Reload conversation history to update UI
+          loadConversationHistory();
+        } else if (chunk === 'CANCELLED') {
+          unlisten();
+          // Remove from active sessions and clean up listener
+          activeSessions.delete(eventConvId);
+          activeSessions = new Set(activeSessions); // Trigger reactivity by creating new Set
+          eventListeners.delete(eventConvId);
+          
+          // If we're currently viewing this conversation, reload it from disk to get partial state
+          if (currentConversationId === eventConvId) {
+            // Reload the conversation to get the partial message from disk
             const data = await invoke('load_conversation', { conversationId: eventConvId });
             currentMessages = data.messages || [];
             currentMessages = currentMessages; // Trigger reactivity
@@ -505,6 +535,8 @@
         bind:inputRef
         onBack={handleBackClick}
         onKeydown={handleKeydown}
+        isStreaming={currentConversationId && activeSessions.has(currentConversationId)}
+        onStop={stopStreaming}
       />
                   {:else}
       <LauncherView

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter};
 use crate::models::Message;
@@ -111,6 +113,7 @@ pub async fn stream_openai(
     messages: &[Message],
     full_response: &mut String,
     periodic_save: Option<Box<dyn Fn(&str) -> Result<(), String> + Send + Sync>>,
+    cancel_flag: Arc<AtomicBool>,
 ) -> Result<(), String> {
     if api_key.is_empty() {
         return Err("OpenAI API key is required".to_string());
@@ -174,6 +177,11 @@ pub async fn stream_openai(
     const SAVE_INTERVAL: Duration = Duration::from_secs(2); // Save every 2 seconds
     
     while let Some(item) = stream.next().await {
+        // Check if aborted
+        if cancel_flag.load(Ordering::Relaxed) {
+            break;
+        }
+        
         let chunk = item.map_err(|e| format!("Stream error: {}", e))?;
         buffer.push_str(&String::from_utf8_lossy(&chunk));
         

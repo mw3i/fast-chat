@@ -1,3 +1,5 @@
+use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
 use tauri::AppHandle;
 use serde_json;
 
@@ -50,6 +52,7 @@ pub async fn stream_llm(
     messages: &[Message],
     full_response: &mut String,
     periodic_save: Option<Box<dyn Fn(&str) -> Result<(), String> + Send + Sync>>,
+    cancel_flag: Arc<AtomicBool>,
 ) -> Result<(), String> {
     // Load settings
     let settings = load_settings(app)?;
@@ -76,6 +79,7 @@ pub async fn stream_llm(
                 messages,
                 full_response,
                 periodic_save,
+                cancel_flag,
             ).await
         }
         "openai" => {
@@ -87,6 +91,7 @@ pub async fn stream_llm(
                 messages,
                 full_response,
                 periodic_save,
+                cancel_flag,
             ).await
         }
         _ => {

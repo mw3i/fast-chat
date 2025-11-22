@@ -1,4 +1,7 @@
-use tauri::{AppHandle, Emitter};
+use std::sync::{Arc, Mutex, atomic::{AtomicBool, Ordering}};
+use std::collections::HashMap;
+use tauri::{AppHandle, Emitter, State};
+use futures::future::AbortHandle;
 use crate::models::{Conversation, Message};
 use crate::storage::conversations::{
     load_conversation as load_conversation_storage,
@@ -69,6 +72,7 @@ pub async fn send_message_stream(
     app: AppHandle,
     conversation_id: String,
     user_message: String,
+    abort_handles: State<'_, Arc<Mutex<HashMap<String, (AbortHandle, Arc<AtomicBool>)>>>>,
 ) -> Result<(), String> {
     // Load the conversation
     let mut conversation = load_conversation_storage(&app, &conversation_id)?;
@@ -116,6 +120,16 @@ pub async fn send_message_stream(
     conversation.updated_at = get_iso_timestamp();
     save_conversation_storage(&app, &conversation)?;
     
+    // Create abort handle and cancellation flag for cancellation
+    let (abort_handle, abort_registration) = futures::future::AbortHandle::new_pair();
+    let cancel_flag = Arc::new(AtomicBool::new(false));
+    
+    // Register abort handle and flag
+    {
+        let mut handles = abort_handles.lock().map_err(|e| format!("Failed to lock abort handles: {}", e))?;
+        handles.insert(conversation_id.clone(), (abort_handle, cancel_flag.clone()));
+    }
+    
     // Stream LLM response with periodic save callback
     let mut full_response = String::new();
     let event_name = format!("stream-chunk-{}", conversation_id);
@@ -136,7 +150,67 @@ pub async fn send_message_stream(
         Ok(())
     });
     
-    stream_llm(&app, &event_name, &llm_messages, &mut full_response, Some(save_callback)).await?;
+    // Wrap stream_llm in Abortable to handle cancellation
+    let stream_future = stream_llm(&app, &event_name, &llm_messages, &mut full_response, Some(save_callback), cancel_flag.clone());
+    let abortable_stream = futures::future::Abortable::new(stream_future, abort_registration);
+    
+    let stream_result = match abortable_stream.await {
+        Ok(Ok(())) => {
+            // Check if cancelled by checking the flag
+            if cancel_flag.load(Ordering::Relaxed) {
+                // Stream was aborted
+                // Save partial response
+                let mut conv = load_conversation_storage(&app, &conversation_id)?;
+                if let Some(last_msg) = conv.messages.last_mut() {
+                    if last_msg.role == "assistant" && !last_msg.complete {
+                        last_msg.content = full_response.clone();
+                        last_msg.complete = true; // Mark as complete even though aborted
+                        conv.updated_at = get_iso_timestamp();
+                        save_conversation_storage(&app, &conv)?;
+                    }
+                }
+                // Emit cancellation event
+                app.emit(&event_name, "CANCELLED").map_err(|e| format!("Failed to emit cancellation: {}", e))?;
+                // Remove from abort handles
+                let mut handles = abort_handles.lock().map_err(|e| format!("Failed to lock abort handles: {}", e))?;
+                handles.remove(&conversation_id);
+                return Err("Stream cancelled by user".to_string());
+            }
+            // Normal completion
+            Ok(())
+        }
+        Ok(Err(e)) => {
+            // Error during streaming
+            Err(e)
+        }
+        Err(_) => {
+            // Stream was aborted by Abortable
+            // Save partial response
+            let mut conv = load_conversation_storage(&app, &conversation_id)?;
+            if let Some(last_msg) = conv.messages.last_mut() {
+                if last_msg.role == "assistant" && !last_msg.complete {
+                    last_msg.content = full_response.clone();
+                    last_msg.complete = true; // Mark as complete even though aborted
+                    conv.updated_at = get_iso_timestamp();
+                    save_conversation_storage(&app, &conv)?;
+                }
+            }
+            // Emit cancellation event
+            app.emit(&event_name, "CANCELLED").map_err(|e| format!("Failed to emit cancellation: {}", e))?;
+            // Remove from abort handles
+            let mut handles = abort_handles.lock().map_err(|e| format!("Failed to lock abort handles: {}", e))?;
+            handles.remove(&conversation_id);
+            return Err("Stream cancelled by user".to_string());
+        }
+    };
+    
+    // Remove abort handle on completion
+    {
+        let mut handles = abort_handles.lock().map_err(|e| format!("Failed to lock abort handles: {}", e))?;
+        handles.remove(&conversation_id);
+    }
+    
+    stream_result?;
     
     // Send completion event
     app.emit(&event_name, "DONE").map_err(|e| format!("Failed to emit completion: {}", e))?;
@@ -157,5 +231,21 @@ pub async fn send_message_stream(
     save_conversation_storage(&app, &conversation)?;
     
     Ok(())
+}
+
+#[tauri::command]
+pub async fn stop_message_stream(
+    conversation_id: String,
+    abort_handles: State<'_, Arc<Mutex<HashMap<String, (AbortHandle, Arc<AtomicBool>)>>>>,
+) -> Result<(), String> {
+    let mut handles = abort_handles.lock().map_err(|e| format!("Failed to lock abort handles: {}", e))?;
+    
+    if let Some((handle, flag)) = handles.remove(&conversation_id) {
+        flag.store(true, Ordering::Relaxed);
+        handle.abort();
+        Ok(())
+    } else {
+        Err("No active stream found for this conversation".to_string())
+    }
 }
 

@@ -5,9 +5,11 @@ mod api;
 mod commands;
 mod window;
 
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, atomic::AtomicBool};
+use std::collections::HashMap;
 use tauri::{Manager, RunEvent, WindowEvent};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutEvent, ShortcutState};
+use futures::future::AbortHandle;
 
 use window::shortcuts::{toggle_window, parse_shortcut, set_shortcut_listening_mode, update_shortcut};
 use storage::settings::load_settings as load_settings_storage;
@@ -23,6 +25,7 @@ use commands::{
     create_conversation,
     send_message,
     send_message_stream,
+    stop_message_stream,
     list_ollama_models,
 };
 
@@ -32,8 +35,13 @@ fn main() {
     let is_listening_clone = Arc::clone(&is_listening);
     let is_listening_for_run = Arc::clone(&is_listening);
     
+    // Shared state to track active stream abort handles
+    // Maps conversation_id -> (AbortHandle, Arc<AtomicBool>) to abort the stream
+    let abort_handles: Arc<Mutex<HashMap<String, (AbortHandle, Arc<AtomicBool>)>>> = Arc::new(Mutex::new(HashMap::new()));
+    
     tauri::Builder::default()
         .manage(is_listening)
+        .manage(abort_handles)
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
@@ -56,6 +64,7 @@ fn main() {
             create_conversation,
             send_message,
             send_message_stream,
+            stop_message_stream,
             update_shortcut,
             set_shortcut_listening_mode,
             list_ollama_models

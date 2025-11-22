@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy, tick, afterUpdate } from 'svelte';
-  import { ArrowLeft } from 'lucide-svelte';
+  import { ArrowLeft, Square } from 'lucide-svelte';
   import Message from './Message.svelte';
   
   export let messages = [];
@@ -10,6 +10,8 @@
   export let onBack;
   export let onKeydown;
   export let onInputRef = (ref) => {};
+  export let isStreaming = false;
+  export let onStop = () => {};
   
   let chatMessagesRef;
   let userHasScrolledUp = false;
@@ -184,6 +186,15 @@
     class="launcher-input"
     autofocus
   />
+  {#if isStreaming}
+    <button
+      on:click={onStop}
+      class="stop-button"
+      title="Stop generating"
+    >
+      <Square size={14} fill="black" />
+    </button>
+  {/if}
 </div>
 
 <style>
@@ -236,6 +247,24 @@
   .back-button:hover {
     color: rgba(255, 255, 255, 0.9);
     background: rgba(255, 255, 255, 0.1);
+  }
+
+  .stop-button {
+    @apply flex items-center justify-center;
+    @apply rounded-full;
+    @apply transition-opacity;
+    background: white;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0.8;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+
+  .stop-button:hover {
+    opacity: 1;
   }
 
   .message {
