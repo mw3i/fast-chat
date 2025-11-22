@@ -353,43 +353,38 @@
 
 <style>
   .settings-panel {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     background: transparent;
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border-radius: 1rem;
-    z-index: 100;
     display: flex;
     flex-direction: column;
-    animation: slideInRight 0.3s ease;
+    animation: fadeIn 0.15s ease;
     overflow: hidden;
+    padding-top: 40px;
+    @apply px-6 pb-6;
   }
 
   .settings-panel.closing {
-    animation: slideOutRight 0.3s ease;
+    animation: fadeOut 0.15s ease;
   }
 
-  @keyframes slideInRight {
+  @keyframes fadeIn {
     from {
-      transform: translateX(100%);
+      opacity: 0;
     }
     to {
-      transform: translateX(0);
+      opacity: 1;
     }
   }
 
-  @keyframes slideOutRight {
+  @keyframes fadeOut {
     from {
-      transform: translateX(0);
+      opacity: 1;
     }
     to {
-      transform: translateX(100%);
+      opacity: 0;
     }
   }
 

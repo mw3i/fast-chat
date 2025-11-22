@@ -25,12 +25,13 @@
   }
 </script>
 
-<div class="fixed inset-0 bg-black/95 backdrop-blur-2xl backdrop-saturate-150 z-[1000]">
+<div class="welcome-overlay" data-tauri-drag-region>
   <!-- Back Arrow - Upper Left (only on second screen) -->
   {#if currentPage === 1}
     <button 
-      class="absolute top-8 left-8 text-white hover:opacity-70 transition-opacity cursor-pointer"
+      class="absolute top-12 left-8 text-white hover:opacity-70 transition-opacity cursor-pointer"
       on:click={handleBack}
+      data-tauri-drag-region="false"
       aria-label="Back"
     >
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -40,13 +41,14 @@
   {/if}
 
   <!-- Page Content -->
-  <div class="flex items-center justify-center h-full p-8">
+  <div class="flex items-center justify-center h-full p-8" data-tauri-drag-region>
     {#if currentPage === 0}
       <div class="w-full max-w-2xl text-center text-white">
         <h1 class="text-4xl font-semibold mb-8">Welcome to the app</h1>
         <button 
           class="px-6 py-3 rounded-lg bg-white/10 border border-white/20 text-white font-medium hover:bg-white/20 hover:border-white/30 transition-all"
           on:click={handleGetStarted}
+          data-tauri-drag-region="false"
           aria-label="Get started"
         >
           Get started
@@ -58,7 +60,7 @@
         <div class="text-lg leading-relaxed text-white/90 space-y-6">
           <p>
             To set up a local model, the easiest approach is going to be installing Ollama. 
-            Go to <a href="https://ollama.com" on:click={handleLinkClick} class="text-blue-400 underline hover:text-blue-300 transition-colors cursor-pointer">ollama.com</a> and download it, install it, and run it.
+            Go to <a href="https://ollama.com" on:click={handleLinkClick} data-tauri-drag-region="false" class="text-blue-400 underline hover:text-blue-300 transition-colors cursor-pointer">ollama.com</a> and download it, install it, and run it.
           </p>
           <p>
             Once you've loaded up Ollama, download an LLM. <code class="bg-white/10 px-2 py-1 rounded font-mono text-sm text-yellow-400">gemma3:4b</code> is a good one to start with.
@@ -73,6 +75,7 @@
     <button 
       class="fixed bottom-8 right-8 px-6 py-3 rounded-lg bg-white/10 border border-white/20 text-white font-medium hover:bg-white/20 hover:border-white/30 transition-all z-[1001]"
       on:click={handleFinish}
+      data-tauri-drag-region="false"
       aria-label="Finish setup"
     >
       Finish Setup. Get started.
@@ -81,5 +84,14 @@
 </div>
 
 <style>
+  .welcome-overlay {
+    position: fixed;
+    inset: 0;
+    background: transparent;
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    z-index: 1000;
+  }
+
 </style>
 

@@ -61,7 +61,7 @@
         setTimeout(() => {
           showSettings = false;
           settingsPanelClosing = false;
-        }, 300);
+        }, 150);
       } else if (isChatMode) {
         isChatMode = false;
         query = '';
@@ -376,7 +376,7 @@
       setTimeout(() => {
         showSettings = false;
         settingsPanelClosing = false;
-      }, 300);
+      }, 150);
     }
   }
 
@@ -524,7 +524,20 @@
 {#if showWelcomeScreen}
   <WelcomeScreen onContinue={dismissWelcomeScreen} />
 {:else}
-<div class="launcher-window" class:chat-mode={isChatMode}>
+<div class="launcher-window" class:chat-mode={isChatMode} class:settings-mode={showSettings}>
+    {#if showSettings}
+    <SettingsPanel
+      show={showSettings}
+      closing={settingsPanelClosing}
+      loading={loadingSettings}
+      bind:settings
+      {shortcutError}
+      onClose={handleSettingsClick}
+      onSettingChange={handleSettingChange}
+      onSave={saveSettings}
+      onRedoSetup={redoSetup}
+    />
+    {:else}
     <div class="top-block">
       {#if isChatMode}
       <ChatView
@@ -538,7 +551,7 @@
         isStreaming={currentConversationId && activeSessions.has(currentConversationId)}
         onStop={stopStreaming}
       />
-                  {:else}
+      {:else}
       <LauncherView
         bind:query
         bind:inputRef
@@ -551,23 +564,10 @@
         onDeleteConversation={handleDeleteConversation}
         onDeleteAll={handleDeleteAllClick}
       />
-        {/if}
+      {/if}
     </div>
-
-    {#if showSettings}
-    <SettingsPanel
-      show={showSettings}
-      closing={settingsPanelClosing}
-      loading={loadingSettings}
-      bind:settings
-                      {shortcutError}
-      onClose={handleSettingsClick}
-      onSettingChange={handleSettingChange}
-      onSave={saveSettings}
-      onRedoSetup={redoSetup}
-    />
-                  {/if}
-            </div>
+    {/if}
+</div>
             
 <DeleteModal
   show={showDeleteAllModal}
