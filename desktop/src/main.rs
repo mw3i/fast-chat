@@ -63,9 +63,6 @@ fn main() {
             let window = app.get_webview_window("main").unwrap();
             let app_handle = app.handle();
             
-            // Start with window hidden
-            window.hide().unwrap();
-            
             // Load settings and register keyboard shortcut
             let settings_result = load_settings_storage(&app_handle);
             let shortcut_str = if let Ok(settings) = settings_result {

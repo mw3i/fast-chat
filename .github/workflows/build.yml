@@ -101,6 +101,12 @@ jobs:
         with:
           path: ./artifacts
 
+      - name: Find and prepare release files
+        run: |
+          mkdir -p ./release-files
+          find ./artifacts -type f \( -name "*.dmg" -o -name "*.msi" -o -name "*.AppImage" \) -exec cp {} ./release-files/ \;
+          ls -lh ./release-files/
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -123,7 +129,7 @@ jobs:
               3. Run: `xattr -cr "/Applications/Fast Chat.app"` (or wherever you stored it)
               4. Try running
           files: |
-            artifacts/**/*
+            ./release-files/*
           draft: false
           prerelease: true
 

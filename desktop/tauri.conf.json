@@ -33,7 +33,7 @@
         "alwaysOnTop": false,
         "visibleOnAllWorkspaces": true,
         "center": true,
-        "visible": false,
+        "visible": true,
         "devtools": true,
         "url": "index.html"
       }
