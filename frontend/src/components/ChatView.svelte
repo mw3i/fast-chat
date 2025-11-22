@@ -275,8 +275,9 @@
 
   .user-message {
     @apply self-end;
-    background: rgba(59, 130, 246, 0.3);
-    border: 1px solid rgba(59, 130, 246, 0.5);
+    @apply p-3;
+    background: rgba(128, 128, 128, 0.3);
+    border: none;
     color: rgba(255, 255, 255, 0.95);
   }
 

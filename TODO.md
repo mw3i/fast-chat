@@ -4,13 +4,12 @@ source: human
 ---
 
 - [ ] stop button
-- [ ] double user message when leaving/re-entering chat on second user message, then on first token response it starts editing the second user message. fixes itself when message is finished 
-- [ ] chat history not scrollable
 - [ ] wide table x-scroll issue
 - [ ] top bar icon (with show/hide effect)
 - [ ] multi windows (all anchored by openclose shortcut; with consistent z ordering)
 - [ ] cooler blur modern background
 - [ ] get web search tool use for openai / gemini
+- [ ] dark / light mode
 
 # Test
 
