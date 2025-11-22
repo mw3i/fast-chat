@@ -20,4 +20,5 @@ aes-gcm = "0.10"
 sha2 = "0.10"
 rand = "0.8"
 base64 = "0.22"
+tauri-plugin-window-state = "2.4.1"
 

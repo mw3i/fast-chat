@@ -109,6 +109,10 @@ pub struct Settings {
     pub keyboard_shortcut: String,
     #[serde(rename = "setup-completed", default = "default_setup_completed")]
     pub setup_completed: bool,
+    #[serde(rename = "window-x", skip_serializing_if = "Option::is_none")]
+    pub window_x: Option<i32>,
+    #[serde(rename = "window-y", skip_serializing_if = "Option::is_none")]
+    pub window_y: Option<i32>,
 }
 
 pub fn default_setup_completed() -> bool {
@@ -127,6 +131,8 @@ impl Default for Settings {
             conversation_history: true,
             keyboard_shortcut: default_shortcut(),
             setup_completed: default_setup_completed(),
+            window_x: None,
+            window_y: None,
         }
     }
 }

@@ -15,9 +15,6 @@ pub fn toggle_window(app: &AppHandle, is_listening: &Arc<Mutex<bool>>) {
         if window.is_visible().unwrap() {
             window.hide().unwrap();
         } else {
-            // Center the window - this helps it appear on current space
-            window.center().unwrap_or(());
-            
             window.show().unwrap();
             window.set_focus().unwrap();
             

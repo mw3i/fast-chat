@@ -224,7 +224,7 @@
                 content: streamContent,
                 complete: false // Mark as incomplete while streaming
               };
-            } else {
+          } else {
               // No assistant message yet, add one
               updatedMessages.push({
                 role: 'assistant',
@@ -238,11 +238,11 @@
             
             // Also update currentMessages if this is the conversation being viewed
             if (currentConversationId === eventConvId) {
-              currentMessages[assistantIndex] = {
-                ...currentMessages[assistantIndex],
-                content: streamContent
-              };
-              currentMessages = currentMessages;
+          currentMessages[assistantIndex] = {
+            ...currentMessages[assistantIndex],
+            content: streamContent
+          };
+          currentMessages = currentMessages;
             }
           }
         }
@@ -483,7 +483,7 @@
 {#if showWelcomeScreen}
   <WelcomeScreen onContinue={dismissWelcomeScreen} />
 {:else}
-  <div class="launcher-window" class:chat-mode={isChatMode}>
+<div class="launcher-window" class:chat-mode={isChatMode}>
     <div class="top-block">
       {#if isChatMode}
       <ChatView
@@ -526,11 +526,11 @@
                   {/if}
             </div>
             
-  <DeleteModal
-    show={showDeleteAllModal}
-    onConfirm={confirmDeleteAll}
-    onCancel={cancelDeleteAll}
-  />
+<DeleteModal
+  show={showDeleteAllModal}
+  onConfirm={confirmDeleteAll}
+  onCancel={cancelDeleteAll}
+/>
 {/if}
 
 <style>

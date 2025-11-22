@@ -32,7 +32,6 @@
         "transparent": true,
         "alwaysOnTop": false,
         "visibleOnAllWorkspaces": true,
-        "center": true,
         "visible": true,
         "devtools": true,
         "url": "index.html"

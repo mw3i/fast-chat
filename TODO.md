@@ -3,10 +3,8 @@ title: Fast Chat Launcher TODO List
 source: human
 ---
 
-- [ ] background start black
 - [ ] stop button
 - [ ] double user message when leaving/re-entering chat on second user message, then on first token response it starts editing the second user message. fixes itself when message is finished 
-- [ ] stop centering; save window coords
 - [ ] chat history not scrollable
 - [ ] wide table x-scroll issue
 - [ ] top bar icon (with show/hide effect)

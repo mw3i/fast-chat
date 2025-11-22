@@ -212,10 +212,10 @@
             {:else}
               <div class="model-select-container">
                 <select
-                  value={settings['provider-params'].ollama.model}
+              value={settings['provider-params'].ollama.model}
                   on:change={(e) => {
-                    settings['provider-params'].ollama.model = e.target.value;
-                    settings = settings;
+                settings['provider-params'].ollama.model = e.target.value;
+                settings = settings;
                     onSave();
                   }}
                   class="setting-select"

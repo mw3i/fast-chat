@@ -34,6 +34,7 @@ fn main() {
     
     tauri::Builder::default()
         .manage(is_listening)
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(move |app: &tauri::AppHandle, _shortcut: &Shortcut, event: ShortcutEvent| {
