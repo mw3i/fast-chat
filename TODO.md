@@ -3,6 +3,9 @@ title: Fast Chat Launcher TODO List
 source: human
 ---
 
+- [ ] stop button
+- [ ] double user message when leaving/re-entering chat on second user message, then on first token response it starts editing the second user message. fixes itself when message is finished 
+- [ ] stop centering; save window coords
 - [ ] chat history not scrollable
 - [ ] start with window toggled on initial app launch
 - [ ] wide table x-scroll issue
