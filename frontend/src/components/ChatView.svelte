@@ -14,6 +14,7 @@
   let chatMessagesRef;
   let userHasScrolledUp = false;
   let scrollListenerAttached = false;
+  let hasInitiallyScrolled = false;
   
   // Check if user is near the bottom of the chat
   function isNearBottom(threshold = 50) {
@@ -113,6 +114,29 @@
   $: if (messages.length > 0 && !loadingConversation) {
     scrollToBottomIfNeeded();
   }
+
+  // Scroll to bottom on initial mount or when messages first load
+  $: if (messages.length > 0 && !hasInitiallyScrolled && !loadingConversation) {
+    // Use a small delay to ensure DOM has updated
+    setTimeout(() => {
+      scrollToBottom();
+      hasInitiallyScrolled = true;
+    }, 50);
+  }
+
+  // Reset initial scroll flag when messages are cleared (conversation changes)
+  $: if (messages.length === 0) {
+    hasInitiallyScrolled = false;
+  }
+
+  // Also scroll to bottom when component mounts with messages already loaded
+  onMount(async () => {
+    if (messages.length > 0 && !loadingConversation) {
+      await tick();
+      scrollToBottom();
+      hasInitiallyScrolled = true;
+    }
+  });
 
   // Expose scroll functions to parent
   export function resetScrollState() {
